@@ -1,0 +1,8 @@
+
+> scriptagent-frontend@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+Port 5173 is in use, trying another one...
+
+  VITE v5.4.21  ready in 1542:25:07 PM [vite] hmr update /src/shared/styles/global.css
+2:25:07 PM [vite] hmr update /src/features/dashboard/components/SubmitPanel.tsx
