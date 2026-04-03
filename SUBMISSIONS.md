@@ -198,7 +198,6 @@ If there is anything about your system that is not captured in the sections abov
 |---|---|
 | Pull request must be opened | By 4:15 PM |
 | All files must be in the PR | By 4:15 PM |
-| Live demos begin | 4:30 PM |
 
 The pull request timestamp is final. Nothing pushed after 4:15 PM will be included in the evaluation.
 
