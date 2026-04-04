@@ -1,0 +1,610 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@700;900&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1814;
+    --paper: #f5f2eb;
+    --paper2: #ede9e0;
+    --rule: #c8c3b5;
+    --rule-dark: #8a8070;
+    --accent: #1a1814;
+    --muted: #6b6458;
+    --approved: #2d5a1b;
+    --approved-bg: #eaf3de;
+    --revision: #854f0b;
+    --revision-bg: #faeeda;
+    --waiting: #185fa5;
+    --waiting-bg: #e6f1fb;
+    --escalated: #a32d2d;
+    --escalated-bg: #fcebeb;
+    --sent: #3c3489;
+    --sent-bg: #eeedfe;
+  }
+
+  body { background: var(--paper); font-family: 'DM Mono', monospace; color: var(--ink); }
+
+  .shell { max-width: 960px; margin: 0 auto; padding: 0; }
+
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .masthead-left { display: flex; flex-direction: column; gap: 2px; }
+
+  .masthead-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .masthead-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .masthead-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .ticker-bar {
+    border-bottom: 1px solid var(--rule);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 6px 24px;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    display: flex;
+    gap: 32px;
+    overflow: hidden;
+  }
+
+  .ticker-item { display: flex; gap: 8px; white-space: nowrap; }
+  .ticker-label { opacity: 0.5; }
+  .ticker-val { font-weight: 500; }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .metric-cell {
+    padding: 16px 24px;
+    border-right: 1px solid var(--rule);
+  }
+  .metric-cell:last-child { border-right: none; }
+
+  .metric-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .metric-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    min-height: 480px;
+  }
+
+  .col-main {
+    border-right: 1px solid var(--rule);
+  }
+
+  .col-aside { }
+
+  .section-header {
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--rule);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    border: none;
+    border-right: 1px solid var(--rule);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.1s;
+  }
+
+  .filter-btn:last-child { border-right: none; }
+  .filter-btn:hover { background: var(--paper2); }
+  .filter-btn.active { background: var(--ink); color: var(--paper); }
+
+  .script-list { }
+
+  .script-row {
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 24px;
+    display: grid;
+    grid-template-columns: 80px 1fr 110px 90px;
+    gap: 12px;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .script-row:hover { background: var(--paper2); }
+  .script-row.selected { background: var(--paper2); border-left: 3px solid var(--ink); padding-left: 21px; }
+
+  .script-id {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .script-client { font-size: 13px; font-weight: 500; }
+  .script-preview { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .status-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .s-waiting { background: var(--waiting-bg); color: var(--waiting); }
+  .s-approved { background: var(--approved-bg); color: var(--approved); }
+  .s-revision { background: var(--revision-bg); color: var(--revision); }
+  .s-escalated { background: var(--escalated-bg); color: var(--escalated); }
+  .s-sent { background: var(--sent-bg); color: var(--sent); }
+
+  .followup-count { font-size: 11px; color: var(--muted); }
+
+  .detail-pane { padding: 0; }
+
+  .detail-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .detail-client {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .detail-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .detail-section {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .detail-section-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .script-box {
+    background: var(--paper2);
+    border: 1px solid var(--rule);
+    padding: 10px 12px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--ink);
+    font-style: italic;
+    max-height: 80px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .script-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 24px;
+    background: linear-gradient(transparent, var(--paper2));
+  }
+
+  .timeline { }
+
+  .timeline-item {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 11px;
+  }
+
+  .timeline-time { color: var(--muted); min-width: 72px; }
+  .timeline-event { color: var(--ink); }
+
+  .classify-demo { }
+
+  .classify-input-wrap {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--rule-dark);
+  }
+
+  .classify-input {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 8px 10px;
+    border: none;
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+  }
+
+  .classify-btn {
+    padding: 8px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .classify-btn:hover { background: #333; }
+
+  .classify-result {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    font-size: 11px;
+    min-height: 36px;
+    line-height: 1.5;
+    background: var(--paper2);
+  }
+
+  .classify-verdict {
+    font-weight: 500;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .classify-reason { color: var(--muted); font-style: italic; }
+
+  .respond-section {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .action-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    border: 1px solid var(--rule-dark);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    margin-right: 6px;
+    margin-top: 6px;
+    transition: background 0.1s;
+  }
+
+  .action-btn:hover { background: var(--paper2); }
+  .action-btn.danger { border-color: var(--escalated); color: var(--escalated); }
+
+  .bottom-bar {
+    border-top: 2px solid var(--ink);
+    padding: 10px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .pulse {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--approved);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; }
+    .col-aside { border-top: 1px solid var(--rule); }
+    .metrics-row { grid-template-columns: repeat(2, 1fr); }
+    .metric-cell:nth-child(2) { border-right: none; }
+    .script-row { grid-template-columns: 1fr 90px; }
+    .script-id, .followup-count { display: none; }
+  }
+</style>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="masthead-left">
+      <div class="masthead-title">ScriptAgent</div>
+      <div class="masthead-sub">Content Approval Loop — Scrollhouse Ops</div>
+    </div>
+    <div class="masthead-meta">
+      3 Apr 2026<br>
+      22 active clients<br>
+      <span class="pulse"></span>agent running
+    </div>
+  </div>
+
+  <div class="ticker-bar">
+    <div class="ticker-item"><span class="ticker-label">last classified:</span><span class="ticker-val">"looks good 👍" → approved</span></div>
+    <div class="ticker-item"><span class="ticker-label">escalated:</span><span class="ticker-val">SCR-007 · 74h no response</span></div>
+    <div class="ticker-item"><span class="ticker-label">queue:</span><span class="ticker-val">3 awaiting follow-up</span></div>
+  </div>
+
+  <div class="metrics-row">
+    <div class="metric-cell">
+      <div class="metric-num" id="m-total">11</div>
+      <div class="metric-label">Scripts in loop</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-num" id="m-approved" style="color: var(--approved);">4</div>
+      <div class="metric-label">Approved today</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-num" id="m-waiting" style="color: var(--waiting);">5</div>
+      <div class="metric-label">Awaiting response</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-num" id="m-escalated" style="color: var(--escalated);">2</div>
+      <div class="metric-label">Escalated</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="col-main">
+      <div class="section-header">
+        <span>Script queue</span>
+        <span id="queue-count">11 scripts</span>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterScripts('all', this)">All</button>
+        <button class="filter-btn" onclick="filterScripts('awaiting_response', this)">Waiting</button>
+        <button class="filter-btn" onclick="filterScripts('approved', this)">Approved</button>
+        <button class="filter-btn" onclick="filterScripts('revisions', this)">Revisions</button>
+        <button class="filter-btn" onclick="filterScripts('escalated', this)">Escalated</button>
+      </div>
+      <div class="script-list" id="script-list"></div>
+    </div>
+
+    <div class="col-aside">
+      <div class="detail-pane" id="detail-pane">
+        <div class="detail-header">
+          <div class="detail-client" id="d-client">Select a script</div>
+          <div class="detail-meta" id="d-meta">Click any row to view details</div>
+        </div>
+
+        <div class="detail-section" id="d-script-section" style="display:none">
+          <div class="detail-section-label">Script excerpt</div>
+          <div class="script-box" id="d-script-text"></div>
+        </div>
+
+        <div class="detail-section" id="d-timeline-section" style="display:none">
+          <div class="detail-section-label">Event log</div>
+          <div class="timeline" id="d-timeline"></div>
+        </div>
+
+        <div class="respond-section" id="d-respond-section" style="display:none">
+          <div class="detail-section-label">Simulate client response</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0;">
+            <button class="action-btn" onclick="simulateResponse('looks good 👍')">looks good 👍</button>
+            <button class="action-btn" onclick="simulateResponse('can you change the hook?')">revise hook</button>
+            <button class="action-btn" onclick="simulateResponse('can we jump on a call?')">wants call</button>
+            <button class="action-btn" onclick="simulateResponse('🔥')">🔥</button>
+            <button class="action-btn danger" onclick="simulateResponse('this does not work at all')">reject</button>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-label">Live classifier — type any response</div>
+          <div class="classify-demo">
+            <div class="classify-input-wrap">
+              <input class="classify-input" id="classify-input" placeholder="e.g. almost! just fix the CTA" />
+              <button class="classify-btn" onclick="classifyLocal()">classify →</button>
+            </div>
+            <div class="classify-result" id="classify-result">
+              <div style="color: var(--muted); font-style: italic; font-size: 11px;">Enter a client message above to see the agent classify it</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <span>ScriptAgent v0.1 — Developer's Summit 3.0</span>
+    <span>GDG On Campus · Silicon University · 3 Apr 2026</span>
+  </div>
+
+</div>
+
+<script>
+const scripts = [
+  { id:'SCR-001', client:'GlowSkin', manager:'Rohit', status:'awaiting_response', followups:0, sentAt:'09:14', version:1, preview:'Hook: Have you ever looked in the mirror and...', script:'Hook: Have you ever looked in the mirror and wondered why your skincare routine isn\'t working? Here\'s what nobody tells you about double cleansing...', history:['09:14 — Approval request sent to priya@glowskin.com','09:14 — SLA set to 48h (deadline: 4 Apr 09:14)'] },
+  { id:'SCR-002', client:'FinWave', manager:'Ananya', status:'revisions', followups:0, sentAt:'08:30', version:1, preview:'Open with a stat: 73% of millennials have...', script:'Open with a stat: 73% of millennials have never spoken to a financial advisor. Here\'s how FinWave changes that in under 60 seconds...', history:['08:30 — Approval request sent','10:02 — Client responded: "almost perfect but the hook feels too generic, also CTA is weak"','10:02 — Agent classified response: revisions','10:03 — Revision notes extracted and sent to scriptwriter'], response:'"almost perfect but the hook feels too generic, also the CTA is weak"', revisions:'1. Revise hook — client says it feels too generic\n2. Strengthen CTA — described as weak' },
+  { id:'SCR-003', client:'UrbanBrew', manager:'Siddharth', status:'approved', followups:0, sentAt:'Yesterday 16:45', version:1, preview:'Three things that separate a good coffee from...', script:'Three things that separate a good coffee from a great one. Spoiler: your barista knows all of them. UrbanBrew is hiring...', history:['Yesterday 16:45 — Approval request sent','Yesterday 17:12 — Client responded: "looks good 👍 send it"','Yesterday 17:12 — Agent classified response: approved (informal)','Yesterday 17:12 — Status updated: approved, moved to production queue'] },
+  { id:'SCR-004', client:'NovaDerm', manager:'Rohit', status:'escalated', followups:2, sentAt:'1 Apr 11:00', version:1, preview:'The science behind retinol — explained in...', script:'The science behind retinol — explained in 60 seconds. No jargon. No influencer fluff. Just what your skin actually needs...', history:['1 Apr 11:00 — Approval request sent','2 Apr 11:00 — Follow-up 1 sent (24h, no response)','3 Apr 11:00 — Follow-up 2 sent (48h, production at risk)','3 Apr 11:01 — 72h threshold reached — escalated to account manager Rohit'] },
+  { id:'SCR-005', client:'PeakRun', manager:'Ananya', status:'awaiting_response', followups:1, sentAt:'2 Apr 14:00', version:2, preview:'You trained for 6 months. Your content should...', script:'You trained for 6 months. Your content should work just as hard. PeakRun\'s new coaching app tracks both...', history:['2 Apr 09:00 — Approval request sent (v1)','2 Apr 15:00 — Client requested revisions: "make it more motivational"','2 Apr 16:30 — Revised script submitted (v2)','2 Apr 14:00 — Approval request sent (v2)','3 Apr 14:00 — Follow-up 1 sent (24h, no response)'] },
+  { id:'SCR-006', client:'SolarNest', manager:'Siddharth', status:'awaiting_response', followups:0, sentAt:'10:02', version:1, preview:'Your electricity bill is a choice. Here\'s why...', script:'Your electricity bill is a choice. Here\'s why 12,000 Indian households made the switch to SolarNest last quarter — and what they noticed in the first 30 days...', history:['10:02 — Approval request sent to ops@solarnest.in','10:02 — SLA set to 48h'] },
+  { id:'SCR-007', client:'ThreadCo', manager:'Ananya', status:'escalated', followups:2, sentAt:'31 Mar 09:00', version:1, preview:'Fast fashion isn\'t fashion. ThreadCo\'s...', script:'Fast fashion isn\'t fashion. ThreadCo\'s new slow-drop collection takes 90 days to make and lasts 9 years. Here\'s why that matters...', history:['31 Mar 09:00 — Approval request sent','1 Apr 09:00 — Follow-up 1 sent','2 Apr 09:00 — Follow-up 2 sent','3 Apr 09:00 — 74h — escalated to Ananya with full history'] },
+  { id:'SCR-008', client:'MindfulMeal', manager:'Rohit', status:'approved', followups:0, sentAt:'Yesterday 11:00', version:1, preview:'What if your meal prep took 20 minutes and...', script:'What if your meal prep took 20 minutes and lasted all week? MindfulMeal\'s new planner does the thinking so you don\'t have to...', history:['Yesterday 11:00 — Approval request sent','Yesterday 11:34 — Client responded: "🔥 perfect"','Yesterday 11:34 — Agent classified: approved (emoji)','Yesterday 11:35 — Moved to production queue'] },
+  { id:'SCR-009', client:'VoltBike', manager:'Siddharth', status:'awaiting_response', followups:0, sentAt:'10:45', version:1, preview:'The last traffic jam you\'ll ever sit in...', script:'The last traffic jam you\'ll ever sit in. VoltBike\'s new urban commuter does 0–40 in 4 seconds and costs ₹0 in fuel...', history:['10:45 — Approval request sent','10:45 — SLA: 48h'] },
+  { id:'SCR-010', client:'GlowSkin', manager:'Rohit', status:'approved', followups:0, sentAt:'Yesterday 15:00', version:1, preview:'SPF is not optional. Here\'s what happens...', script:'SPF is not optional. Here\'s what happens to your skin after 10 years without it — and how GlowSkin\'s mineral filter makes it something you\'ll actually want to wear...', history:['Yesterday 15:00 — Approval request sent','Yesterday 15:22 — Client responded: "yes go ahead"','Yesterday 15:22 — Agent classified: approved','Yesterday 15:22 — Moved to production queue'] },
+  { id:'SCR-011', client:'FinWave', manager:'Ananya', status:'awaiting_response', followups:0, sentAt:'11:10', version:1, preview:'Your savings account is lying to you. Here\'s...', script:'Your savings account is lying to you. Here\'s the number your bank doesn\'t want you to calculate — and what FinWave\'s smart account does differently...', history:['11:10 — Approval request sent'] },
+];
+
+const classifyRules = [
+  { patterns: ['👍','🔥','✅','looks good','perfect','yes','send it','go ahead','approved','great','love it','nice','ok cool'], verdict: 'approved', reason: 'Positive informal approval detected' },
+  { patterns: ['change','fix','revise','revision','update','tweak','adjust','edit','almost','not quite','but','however','improve','rework'], verdict: 'revisions', reason: 'Client requesting changes to the script' },
+  { patterns: ['call','chat','speak','talk','phone','meet','discuss','schedule'], verdict: 'call_requested', reason: 'Client wants to discuss before deciding — account manager notified' },
+  { patterns: ['no','reject','not working','does not work','wrong','terrible','hate','awful','start over','scrap','not what'], verdict: 'rejected', reason: 'Client rejecting this script — escalating to account manager' },
+];
+
+function classify(text) {
+  const lower = text.toLowerCase();
+  for (const rule of classifyRules) {
+    if (rule.patterns.some(p => lower.includes(p))) {
+      return { verdict: rule.verdict, reason: rule.reason };
+    }
+  }
+  return { verdict: 'unclear', reason: 'Cannot determine intent — flagging for coordinator review' };
+}
+
+const verdictLabels = { approved:'approved', revisions:'revisions requested', rejected:'rejected', call_requested:'call requested', unclear:'unclear — flagged' };
+const verdictColors = { approved:'var(--approved)', revisions:'var(--revision)', rejected:'var(--escalated)', call_requested:'var(--sent)', unclear:'var(--muted)' };
+
+function classifyLocal() {
+  const input = document.getElementById('classify-input').value.trim();
+  if (!input) return;
+  const r = classify(input);
+  const el = document.getElementById('classify-result');
+  el.innerHTML = `<div class="classify-verdict" style="color:${verdictColors[r.verdict]}">${verdictLabels[r.verdict]}</div><div class="classify-reason">${r.reason}</div>`;
+}
+
+document.getElementById('classify-input').addEventListener('keydown', e => { if (e.key === 'Enter') classifyLocal(); });
+
+const statusLabels = { awaiting_response:'waiting', approved:'approved', revisions:'revisions', escalated:'escalated', sent:'sent' };
+const statusClass = { awaiting_response:'s-waiting', approved:'s-approved', revisions:'s-revision', escalated:'s-escalated', sent:'s-sent' };
+
+let currentFilter = 'all';
+let selectedId = null;
+
+function filterScripts(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById('script-list');
+  const filtered = currentFilter === 'all' ? scripts : scripts.filter(s => s.status === currentFilter);
+  document.getElementById('queue-count').textContent = filtered.length + ' script' + (filtered.length !== 1 ? 's' : '');
+  list.innerHTML = filtered.map(s => `
+    <div class="script-row${selectedId === s.id ? ' selected' : ''}" onclick="selectScript('${s.id}')">
+      <div class="script-id">${s.id}${s.version > 1 ? ' v'+s.version : ''}</div>
+      <div>
+        <div class="script-client">${s.client}</div>
+        <div class="script-preview">${s.preview}</div>
+      </div>
+      <div><span class="status-pill ${statusClass[s.status]}">${statusLabels[s.status]}</span></div>
+      <div class="followup-count">${s.followups > 0 ? s.followups + ' follow-up' + (s.followups > 1 ? 's' : '') : s.sentAt}</div>
+    </div>
+  `).join('');
+}
+
+function selectScript(id) {
+  selectedId = id;
+  const s = scripts.find(x => x.id === id);
+  renderList();
+
+  document.getElementById('d-client').textContent = s.client;
+  document.getElementById('d-meta').textContent = s.id + ' · ' + s.manager + ' · sent ' + s.sentAt + (s.version > 1 ? ' · v' + s.version : '');
+
+  document.getElementById('d-script-section').style.display = '';
+  document.getElementById('d-script-text').textContent = s.script;
+
+  document.getElementById('d-timeline-section').style.display = '';
+  document.getElementById('d-timeline').innerHTML = s.history.map(h => {
+    const parts = h.split('—');
+    return `<div class="timeline-item"><span class="timeline-time">${parts[0].trim()}</span><span class="timeline-event">${parts[1] ? parts[1].trim() : ''}</span></div>`;
+  }).join('');
+
+  const showRespond = s.status === 'awaiting_response';
+  document.getElementById('d-respond-section').style.display = showRespond ? '' : 'none';
+}
+
+function simulateResponse(text) {
+  if (!selectedId) return;
+  const s = scripts.find(x => x.id === selectedId);
+  const r = classify(text);
+  const now = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+  s.history.push(`${now} — Client responded: "${text}"`);
+  s.history.push(`${now} — Agent classified: ${verdictLabels[r.verdict]}`);
+
+  if (r.verdict === 'approved') {
+    s.status = 'approved';
+    s.history.push(`${now} — Moved to production queue. Scriptwriter and producer notified.`);
+  } else if (r.verdict === 'revisions') {
+    s.status = 'revisions';
+    s.history.push(`${now} — Revision notes extracted. Task assigned to scriptwriter.`);
+  } else if (r.verdict === 'rejected' || r.verdict === 'call_requested') {
+    s.status = 'escalated';
+    s.history.push(`${now} — Escalated to account manager ${s.manager} with full history.`);
+  }
+
+  document.getElementById('classify-input').value = text;
+  document.getElementById('classify-result').innerHTML = `<div class="classify-verdict" style="color:${verdictColors[r.verdict]}">${verdictLabels[r.verdict]}</div><div class="classify-reason">${r.reason}</div>`;
+
+  updateMetrics();
+  selectScript(selectedId);
+}
+
+function updateMetrics() {
+  document.getElementById('m-total').textContent = scripts.length;
+  document.getElementById('m-approved').textContent = scripts.filter(s => s.status === 'approved').length;
+  document.getElementById('m-waiting').textContent = scripts.filter(s => s.status === 'awaiting_response').length;
+  document.getElementById('m-escalated').textContent = scripts.filter(s => s.status === 'escalated').length;
+}
+
+renderList();
+</script>
