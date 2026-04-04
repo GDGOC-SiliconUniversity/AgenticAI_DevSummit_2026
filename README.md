@@ -1,4 +1,6 @@
-z# AgenticAI DevSummit 2026
+# AgenticAI DevSummit 2026
+
+**Original Source Code**: [https://github.com/anxbt/silicon-hackathon](https://github.com/anxbt/silicon-hackathon)
 
 Agentic workflow implementation for the Content Approval Loop case (PS-03).
 
